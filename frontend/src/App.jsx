@@ -4,11 +4,9 @@ import Navbar from './components/Navbar';
 import SymptomChecker from './pages/SymptomChecker';
 import VisionAI from './pages/VisionAI';
 import RAGKnowledge from './pages/RAGKnowledge';
-import AgenticAI from './pages/AgenticAI';
 import Dashboard from './pages/Dashboard';
-import Automation from './pages/Automation';
 
-const TABS = ['Dashboard', 'Symptom Checker', 'Vision AI', 'RAG Knowledge', 'Agentic AI', 'Automation'];
+const TABS = ['Dashboard', 'Symptom Checker', 'Vision AI', 'RAG Knowledge'];
 
 export default function App() {
   // Check if already logged in from a previous session
@@ -38,9 +36,7 @@ export default function App() {
       case 'Symptom Checker': return <SymptomChecker />;
       case 'Vision AI':       return <VisionAI />;
       case 'RAG Knowledge':   return <RAGKnowledge />;
-      case 'Agentic AI':      return <AgenticAI />;
       case 'Dashboard':       return <Dashboard />;
-      case 'Automation':      return <Automation />;
       default:                return <Dashboard />;
     }
   };
