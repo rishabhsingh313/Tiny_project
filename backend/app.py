@@ -277,3 +277,4 @@ if __name__ == '__main__':
     # Disabling debug/reloader for Windows stability with heavy ML models
     app.run(host='0.0.0.0', port=5000, debug=False)
 # Initialized 
+# DB Init 
