@@ -282,3 +282,4 @@ if __name__ == '__main__':
 # API Endpoints 
 # Fusion Logic 
 # Forecasting 
+# Smart Tips 
