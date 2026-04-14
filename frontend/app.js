@@ -140,6 +140,11 @@ async function sendToBackend(endpoint, payload, isFormData = false) {
         
         // Update Results UI
         // We prioritze the Global Score for the center gauge, but show local source context
+        if (data.source === 'face') {
+            document.getElementById('val-bpm').innerText = data.heart_rate || '--';
+            document.getElementById('val-gaze').innerText = data.details?.gaze_stability || '--';
+        }
+        
         updateDashboard(data.global_score, data.stress_score, data.source, data.smart_tip, data.is_anomaly, data.forecast);
         fetchHistory(); // Refresh chart
         
@@ -227,6 +232,14 @@ function updateDashboard(globalScore, localScore, source, smartTip = "", isAnoma
         document.body.classList.remove('high-stress-mode');
     }
 
+    // 7. Update Soundscape
+    updateSoundscape(globalScore);
+
+    // 8. Trigger Wellness Coach on spikes
+    if (globalScore > 75 || isAnomaly) {
+        triggerCoach(isAnomaly ? 'Global' : source);
+    }
+
     // Breakdown info and Smart Tip
     let forecastHTML = forecast !== null ? 
         `<div style="color: var(--primary); font-size: 0.85em; margin-top: 5px;">🔮 AI 20-min Forecast: ${forecast}% Stress</div>` : "";
@@ -259,6 +272,156 @@ document.getElementById('btn-download-report').addEventListener('click', async (
         alert("Could not generate report.");
     }
 });
+
+// 7. AI Ambient Soundscape Engine
+const SOUNDS = {
+    // These are High-Stability Direct Links
+    safe: 'https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg',
+    warning: 'https://actions.google.com/sounds/v1/ambient/park_ambience.ogg',
+    critical: 'https://actions.google.com/sounds/v1/ambient/soft_wind_and_rain.ogg'
+};
+
+// Built-in Fallback Sound (Synthesized Beep)
+const FALLBACK_SOUND = "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTv9Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pw==";
+
+let isSoundPlaying = false;
+const player = document.getElementById('ambient-player');
+const soundBtn = document.getElementById('btn-toggle-sound');
+const soundStatus = document.getElementById('sound-status');
+
+soundBtn.addEventListener('click', () => {
+    if (!isSoundPlaying) {
+        const score = parseInt(document.getElementById('stress-score').innerText) || 0;
+        let targetSrc;
+        if (score < 40) targetSrc = SOUNDS.safe;
+        else if (score < 75) targetSrc = SOUNDS.warning;
+        else targetSrc = SOUNDS.critical;
+        
+        console.log("AI Audio Engine: Loading track ->", targetSrc);
+        player.src = targetSrc;
+        player.volume = 1.0; // Force 100% volume
+        player.load();       // Force browser to buffer
+        
+        player.play()
+            .then(() => {
+                isSoundPlaying = true;
+                soundBtn.innerText = "🛑 Stop Engine";
+                soundBtn.style.background = "#ef4444";
+                soundStatus.innerText = "Active";
+            })
+            .catch(e => {
+                console.warn("Main audio blocked, trying fallback...");
+                player.src = FALLBACK_SOUND;
+                player.play();
+                isSoundPlaying = true;
+                soundBtn.innerText = "🛑 Stop Engine (Fallback)";
+                soundStatus.innerText = "Active (Safe Mode)";
+            });
+    } else {
+        player.pause();
+        isSoundPlaying = false;
+        soundBtn.innerText = "Play AI Soundscape";
+        soundBtn.style.background = "";
+        soundStatus.innerText = "Paused";
+    }
+});
+
+function updateSoundscape(score) {
+    if (!isSoundPlaying) return;
+    
+    let targetSrc;
+    if (score < 40) targetSrc = SOUNDS.safe;
+    else if (score < 75) targetSrc = SOUNDS.warning;
+    else targetSrc = SOUNDS.critical;
+    
+    if (!player.src.includes(targetSrc)) {
+        player.src = targetSrc;
+        player.play();
+    }
+}
+
+// 8. AI Wellness Coach
+let challengeActive = false;
+function triggerCoach(source) {
+    if (challengeActive) return;
+    
+    const coachCard = document.getElementById('wellness-coach');
+    const challengeText = document.getElementById('challenge-text');
+    const timerEl = document.getElementById('challenge-timer');
+    
+    const challenges = {
+        Face: "Your jaw is clenched. Perform 5 slow side-to-side jaw rotations now.",
+        Voice: "Vocal tension detected. Hum 'mmm' for 10 seconds to relax vocal cords.",
+        Text: "Cognitive load high. Close your eyes and name 3 things you can hear.",
+        Global: "Overall stress spike! Stand up and reach for the ceiling for 10 seconds."
+    };
+    
+    challengeText.innerText = challenges[source] || challenges.Global;
+    coachCard.style.display = "block";
+    challengeActive = true;
+    
+    let time = 30;
+    const interval = setInterval(() => {
+        time--;
+        timerEl.innerText = `00:${String(time).padStart(2, '0')}`;
+        if (time <= 0) {
+            clearInterval(interval);
+            coachCard.style.display = "none";
+            challengeActive = false;
+            // Reward: Slight decrease in visual stress for motivation
+            const scoreEl = document.getElementById('stress-score');
+            const current = parseInt(scoreEl.innerText);
+            scoreEl.innerText = Math.max(0, current - 5);
+        }
+    }, 1000);
+}
+
+// 9. Privacy Shield Toggle
+const privacyToggle = document.getElementById('privacy-toggle');
+privacyToggle.addEventListener('change', (e) => {
+    const feed = document.getElementById('webcam-feed');
+    if (e.target.checked) {
+        feed.classList.add('privacy-active');
+    } else {
+        feed.classList.remove('privacy-active');
+    }
+});
+
+// 10. AI Stress Signature Profiler
+function updateProfile(history) {
+    if (history.length < 5) return;
+    
+    // Count high stress (>60) counts per modality
+    const counts = { Face: 0, Voice: 0, Text: 0 };
+    history.forEach(r => {
+        if (r.score > 60) counts[r.type]++;
+    });
+    
+    const types = Object.keys(counts);
+    const primaryType = types.reduce((a, b) => counts[a] > counts[b] ? a : b);
+    
+    const profileEl = document.getElementById('profile-details');
+    let description, recommendation;
+    
+    if (counts[primaryType] === 0) {
+        description = "Balanced biological state.";
+        recommendation = "No predominant stress pathway detected yet.";
+    } else if (primaryType === 'Face') {
+        description = "<strong>Visual Responder</strong>";
+        recommendation = "Stress shows up first in your micro-expressions. Recommended: Eye-palming or face massage.";
+    } else if (primaryType === 'Voice') {
+        description = "<strong>Vocal Responder</strong>";
+        recommendation = "Stress affects your throat and pitch first. Recommended: Humming or warm hydration.";
+    } else {
+        description = "<strong>Cognitive Responder</strong>";
+        recommendation = "Stress manifests in your syntax and wording. Recommended: Mind-mapping or logic puzzles.";
+    }
+
+    profileEl.innerHTML = `
+        <div style="font-size: 1.1rem; color: var(--secondary); margin-bottom: 0.5rem;">${description}</div>
+        <p style="font-size: 0.85rem; opacity: 0.7;">${recommendation}</p>
+    `;
+}
 
 // Chart.js Setup
 let historyChart;

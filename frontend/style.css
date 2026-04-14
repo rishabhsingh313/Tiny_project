@@ -160,6 +160,11 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 600; }
     object-fit: cover;
     display: block;
     transform: scaleX(-1); /* Mirror effect */
+    transition: filter 0.5s ease;
+}
+
+#webcam-feed.privacy-active {
+    filter: blur(15px) grayscale(100%);
 }
 
 /* Scanner Animation overlay over webcam */

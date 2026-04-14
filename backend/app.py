@@ -214,10 +214,14 @@ def analyze_face():
         prediction = face_model.predict(temp_path)
         score = prediction.get("score", 50)
         dominant = prediction.get("dominant_emotion", "unknown")
+        bpm = prediction.get("heart_rate", 75)
+        details = prediction.get("details", {})
     else:
         print("Fallback: face_model not initialized")
         score = random.randint(5, 99)
         dominant = "unknown"
+        bpm = 75
+        details = {}
         
     save_to_db('Face', score)
     return jsonify({
@@ -228,6 +232,8 @@ def analyze_face():
         "is_anomaly": check_anomaly(score),
         "smart_tip": generate_smart_tip(score, 'Face'),
         "dominant_emotion": dominant,
+        "heart_rate": bpm,
+        "details": details,
         "status": "success"
     })
 
@@ -276,10 +282,3 @@ if __name__ == '__main__':
     print("Starting API Backend... ML routes enabled")
     # Disabling debug/reloader for Windows stability with heavy ML models
     app.run(host='0.0.0.0', port=5000, debug=False)
-# Initialized 
-# DB Init 
-# CRUD Logic 
-# API Endpoints 
-# Fusion Logic 
-# Forecasting 
-# Smart Tips 

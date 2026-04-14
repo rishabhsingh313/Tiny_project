@@ -36,10 +36,22 @@
                         <h3>📷 Visual Analysis</h3>
                         <span class="status-indicator"></span>
                     </div>
-                    <div class="video-container">
-                        <video id="webcam-feed" autoplay playsinline muted></video>
-                        <div class="overlay-scan"></div>
-                    </div>
+                        <div class="video-container">
+                            <video id="webcam-feed" autoplay playsinline></video>
+                            <div class="overlay-scan"></div>
+                            
+                            <!-- AI Vitals Overlay -->
+                            <div id="vitals-overlay" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 5px; font-family: monospace; font-size: 0.8rem; pointer-events: none;">
+                                💓 BPM: <span id="val-bpm">--</span><br>
+                                👁️ GAZE: <span id="val-gaze">--</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                            <input type="checkbox" id="privacy-toggle" style="width: 20px; height: 20px; cursor: pointer;">
+                            <label for="privacy-toggle" style="font-size: 0.85rem; color: var(--text-muted); cursor: pointer;">
+                                🛡️ Privacy Shield (Blur Feed)
+                            </label>
+                        </div>
                     <button class="btn btn-primary" id="btn-analyze-face">Scan Emotion</button>
                 </div>
 
@@ -112,10 +124,50 @@
                 </div>
 
                 <!-- History Chart -->
+                <!-- Day 3: AI Stress Signature -->
+                <div class="glass-card module-card" id="stress-profile-card">
+                    <div class="card-header">
+                        <span class="module-title">🧬 Stress Signature Profile</span>
+                    </div>
+                    <div id="profile-details" style="text-align: center; padding: 1rem;">
+                        <p style="font-size: 0.9rem; color: var(--text-muted);">
+                            Analyzing history to determine your biological stress type...
+                        </p>
+                    </div>
+                </div>
+
                 <div class="chart-container">
                     <h3>Recent Biomarker History</h3>
                     <canvas id="historyChart"></canvas>
                     <button class="btn btn-secondary" id="btn-download-report" style="margin-top: 1.5rem;">📥 Download Session Report</button>
+                </div>
+
+                <!-- Day 3: AI Ambient Soundscape -->
+                <div class="glass-card module-card">
+                    <div class="card-header">
+                        <span class="module-title">🎧 AI Ambient Engine</span>
+                        <div class="status-indicator" id="sound-status">Idle</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+                            AI adjusts frequency based on current Fusion Index.
+                        </p>
+                        <button class="btn btn-primary" id="btn-toggle-sound">Play AI Soundscape</button>
+                    </div>
+                    <audio id="ambient-player" loop></audio>
+                </div>
+
+                <!-- Day 3: AI Wellness Coach -->
+                <div class="glass-card module-card" id="wellness-coach" style="display: none; border: 1px solid var(--secondary);">
+                    <div class="card-header">
+                        <span class="module-title">🧘 AI Wellness Coach</span>
+                        <div class="status-indicator" style="background: var(--secondary);">ACTIVE</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <h4 id="challenge-title" style="color: var(--secondary); margin-bottom: 0.5rem;">Stress Spike Detected!</h4>
+                        <p id="challenge-text" style="font-size: 0.95rem; margin-bottom: 1rem;">Take a deep breath and hold for 4 seconds.</p>
+                        <div id="challenge-timer" style="font-size: 1.5rem; font-weight: 800; color: #fff;">00:30</div>
+                    </div>
                 </div>
             </div>
         </section>
