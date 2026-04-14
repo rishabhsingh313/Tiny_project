@@ -281,3 +281,4 @@ if __name__ == '__main__':
 # CRUD Logic 
 # API Endpoints 
 # Fusion Logic 
+# Forecasting 
