@@ -95,18 +95,98 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 600; }
 
 .glass-header {
     text-align: center;
-    padding: 2rem 1rem;
+    padding: 1rem 2rem;
     background: rgba(15, 23, 42, 0.4);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--card-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
-.logo h1 { font-size: 2.5rem; letter-spacing: -1px; }
+
+/* Navbar Layout */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+.logo { display: flex; align-items: center; gap: 0.5rem; }
+.logo h1 { font-size: 2rem; letter-spacing: -1px; }
 .logo .highlight {
     background: linear-gradient(to right, #818cf8, #f472b6);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 800;
 }
+
+/* Nav Links */
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 0.5rem;
+}
+.nav-link {
+    text-decoration: none;
+    color: var(--text-muted);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.2s ease, background 0.2s ease;
+}
+.nav-link:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.08);
+}
+.nav-link.active {
+    color: var(--primary);
+    background: rgba(99, 102, 241, 0.12);
+}
+
+/* Hamburger Button */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+.bar-line {
+    display: block;
+    width: 24px;
+    height: 2.5px;
+    background: var(--text-main);
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.hamburger.active .bar-line:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+.hamburger.active .bar-line:nth-child(2) { opacity: 0; }
+.hamburger.active .bar-line:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .hamburger { display: flex; }
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(16px);
+        padding: 1rem;
+        border-bottom: 1px solid var(--card-border);
+    }
+    .nav-links.open { display: flex; }
+    .nav-link { padding: 0.75rem 1rem; }
+}
+
 .subtitle { color: var(--text-muted); font-size: 1.1rem; margin-top: 0.5rem; }
 
 /* --- DASHBOARD LAYOUT --- */

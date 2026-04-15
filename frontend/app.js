@@ -506,4 +506,12 @@ window.onload = () => {
     initChart();
     // Try fetch history on load
     fetchHistory();
+
+    // Navbar hamburger toggle
+    const hamburger = document.getElementById('hamburger-btn');
+    const navLinks = document.getElementById('nav-links');
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        navLinks.classList.toggle('open');
+    });
 };
